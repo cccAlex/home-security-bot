@@ -22,7 +22,7 @@
 #Make sure you have nodejs installed
 sudo apt-get install nodejs npm
 #Cloning the repository
-git@github.com:cccAlex/home-security-bot.git
+git clone git@github.com:cccAlex/home-security-bot.git
 cd home-security-bot
 #Installing all the depedencies
 npm install
