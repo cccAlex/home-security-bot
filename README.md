@@ -28,17 +28,12 @@ sudo apt-get install nodejs npm
 node home-security-bot.js
 ```
 
-## Run tests
-
-```sh
-npm run test
-```
-
 ## Author
 
 👤 **Alexandre - Damien**
 
 * Github: [@cccAlex](https://github.com/cccAlex)
+* Github: [@damckw](https://github.com/damckw)
 
 ## 🤝 Contributing
 
