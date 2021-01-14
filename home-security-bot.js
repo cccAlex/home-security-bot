@@ -122,8 +122,8 @@ bot.on('message', msg => {
 
   else if (command === 'logs') {
     readLastLines.read('logs.txt', 20).then((lines) => {
-      lines.replace("&", " ");
-      lines.replace("=", ":");
+      lines = lines.replace('&', ' ');
+      lines = lines.replace('=', ':');
       msg.channel.send(lines);
     }).catch((e) => {
       msg.channel.send(':droplet: Error : arduino not started!');
