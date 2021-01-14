@@ -12,14 +12,20 @@
   </a>
 </p>
 
-> Home Security Bot is a surveillance bot that allows you to keep an eye on your home when you are away from home.
+> Home Security Bot is a surveillance discord bot that allows you to keep an eye on your home when you are away from home.
 
 ### 🏠 [Homepage](https://github.com/cccAlex/home-security-bot#readme)
 
 ## Install
 
 ```sh
+#Make sure you have nodejs installed
 sudo apt-get install nodejs npm
+#Cloning the repository
+git clone git@github.com:cccAlex/home-security-bot.git
+cd home-security-bot
+#Installing all the depedencies
+npm install
 ```
 
 ## Usage
@@ -28,17 +34,12 @@ sudo apt-get install nodejs npm
 node home-security-bot.js
 ```
 
-## Run tests
-
-```sh
-npm run test
-```
-
 ## Author
 
 👤 **Alexandre - Damien**
 
 * Github: [@cccAlex](https://github.com/cccAlex)
+* Github: [@damckw](https://github.com/damckw)
 
 ## 🤝 Contributing
 
