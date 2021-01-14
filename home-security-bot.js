@@ -1,12 +1,12 @@
 require('dotenv').config();
 const { Client, MessageEmbed } = require('discord.js');
+const readLastLines = require('read-last-lines');
 const bot = new Client();
 
 let alarmStatus = 'off';
 let doorStatus = 'closed';
 let windowStatus = 'closed';
 let lightStatus = 'off';
-let temperature = '20';
 
 bot.login(process.env.BOT_TOKEN);
 
@@ -28,8 +28,9 @@ bot.on('message', msg => {
         { name: ':question: $help', value: 'lists all of the available commands' },
         { name: ':page_facing_up: $status [doors/windows/lights]', value: 'shows the status of all the doors, windows and lights of your home' },
         { name: ':thermometer: $temperature', value: 'gives the current temperature of your home' },
+        { name: ':droplet: $humidity', value: 'gives the current humidity level of your home' },
         { name: ':camera: $snapshot', value: 'sends you a current image of your home' },
-        { name: ':bulb: $lightplanning [hh:mm,hh:mm]', value: 'allows you to control the lights and schedeule them when to turn and off' },
+        { name: ':bulb: $lightplanning [hh:mm,hh:mm]', value: 'allows you to control the lights and schedule them when to turn on and off' },
         { name: ':lock: $alarm [on/off]', value: 'turning the alarm on will keep you notified of any intrusion into your home' },
         { name: ':notebook_with_decorative_cover: $logs [doors/windows/lights]', value: 'display the logs from all the sensors' },
       )
@@ -63,7 +64,31 @@ bot.on('message', msg => {
   }
 
   else if (command === 'temperature') {
-    msg.channel.send(':thermometer: Current temperature : ' + temperature + '°C');
+    readLastLines.read('logs.txt', 1).then((line) => {
+      let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
+      while (match = regex.exec(line))
+        params[match[1]] = match[2];
+      if (params.temperature)
+        msg.channel.send(':thermometer: Current temperature : ' + params.temperature + '°C');
+      else
+      msg.channel.send(':thermometer: Error : arduino not started!');
+    }).catch((e) => {
+      msg.channel.send(':thermometer: Error : arduino not started!');
+    })
+  }
+
+  else if (command === 'humidity') {
+    readLastLines.read('logs.txt', 1).then((line) => {
+      let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
+      while (match = regex.exec(line))
+        params[match[1]] = match[2];
+      if (params.humidity)
+        msg.channel.send(':droplet: Current humidity level : ' + params.humidity + '%');
+      else
+        msg.channel.send(':droplet: Error : arduino not started!');
+    }).catch((e) => {
+      msg.channel.send(':droplet: Error : arduino not started!');
+    })
   }
 
   else if (command === 'snapshot') {
@@ -96,6 +121,10 @@ bot.on('message', msg => {
   }
 
   else if (command === 'logs') {
-    msg.channel.send(':lock: Alarm is On');
+    readLastLines.read('logs.txt', 50).then((lines) => {
+      msg.channel.send(lines);
+    }).catch((e) => {
+      msg.channel.send(':droplet: Error : arduino not started!');
+    })
   }
 });
