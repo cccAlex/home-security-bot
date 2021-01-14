@@ -7,6 +7,7 @@ let alarmStatus = 'off';
 let doorStatus = 'closed';
 let windowStatus = 'closed';
 let lightStatus = 'off';
+let temeratureStatus = 'celsius';
 
 bot.login(process.env.BOT_TOKEN);
 
@@ -27,7 +28,7 @@ bot.on('message', msg => {
       .addFields(
         { name: ':question: $help', value: 'lists all of the available commands' },
         { name: ':page_facing_up: $status [doors/windows/lights]', value: 'shows the status of all the doors, windows and lights of your home' },
-        { name: ':thermometer: $temperature', value: 'gives the current temperature of your home' },
+        { name: ':thermometer: $temperature [c/f]', value: 'gives the current temperature of your home (you can choose between displaying in celsius or fahrenheit' },
         { name: ':droplet: $humidity', value: 'gives the current humidity level of your home' },
         { name: ':camera: $snapshot', value: 'sends you a current image of your home' },
         { name: ':bulb: $lightplanning [hh:mm,hh:mm]', value: 'allows you to control the lights and schedule them when to turn on and off' },
@@ -64,17 +65,29 @@ bot.on('message', msg => {
   }
 
   else if (command === 'temperature') {
-    readLastLines.read('logs.txt', 1).then((line) => {
-      let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
-      while (match = regex.exec(line))
-        params[match[1]] = match[2];
-      if (params.temperature)
-        msg.channel.send(':thermometer: Current temperature : ' + params.temperature + '°C');
-      else
-      msg.channel.send(':thermometer: Error : arduino not started!');
-    }).catch((e) => {
-      msg.channel.send(':thermometer: Error : arduino not started!');
-    })
+    if (!args.length) {
+      readLastLines.read('logs.txt', 1).then((line) => {
+        let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
+        while (match = regex.exec(line))
+          params[match[1]] = match[2];
+        if (params.temperature) {
+          if (temeratureStatus == 'celsius')
+            msg.channel.send(':thermometer: Current temperature : ' + params.temperature + '°C');
+          else
+            msg.channel.send(':thermometer: Current temperature : ' + (params.temperature * 9 / 5 + 32) + '°F');
+        } else
+          msg.channel.send(':thermometer: Error : arduino not started!');
+      }).catch((e) => {
+        msg.channel.send(':thermometer: Error : arduino not started!');
+      })
+    } else if (args[0] == 'c') {
+      temeratureStatus = 'celsius'
+      msg.channel.send(':thermometer: Temperature set to celsius');
+    } else if (args[0] == 'f') {
+      temeratureStatus = 'fahrenheit'
+      msg.channel.send(':thermometer: Temperature set to fahrenheit');
+    } else
+      msg.channel.send(':no_entry_sign: Wrong argument: try $help')
   }
 
   else if (command === 'humidity') {
