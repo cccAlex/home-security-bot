@@ -17,7 +17,7 @@
 ### 🏠 [Homepage](https://github.com/cccAlex/home-security-bot#readme)
 
 ## Install
-
+Make sure you have python installed with pip
 ```sh
 #Make sure you have nodejs installed
 sudo apt-get install nodejs npm
@@ -26,6 +26,9 @@ git clone git@github.com:cccAlex/home-security-bot.git
 cd home-security-bot
 #Installing all the depedencies
 npm install
+pip install pyserial
+#Don't forget to add a .env file with your discord bot token
+BOT_TOKEN=[your discord bot token]
 ```
 
 ## Usage
