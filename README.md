@@ -14,8 +14,6 @@
 
 > Home Security Bot is a surveillance discord bot that allows you to keep an eye on your home when you are away from home.
 
-### 🏠 [Homepage](https://github.com/cccAlex/home-security-bot#readme)
-
 ## Install
 Make sure you have python installed with pip
 ```sh
@@ -36,6 +34,11 @@ BOT_TOKEN=[your discord bot token]
 ```sh
 node home-security-bot.js
 ```
+
+## Screenshots of the bot
+
+![image](https://user-images.githubusercontent.com/71386489/107672294-04b79880-6c95-11eb-838c-81f3e6abddc7.png)
+
 
 ## Author
 
