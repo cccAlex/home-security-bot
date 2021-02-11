@@ -1,6 +1,9 @@
 require('dotenv').config();
 const { Client, MessageEmbed } = require('discord.js');
 const readLastLines = require('read-last-lines');
+const captureWebsite = require('capture-website');
+const fs = require('fs');
+const spawn = require("child_process").spawn;
 const bot = new Client();
 
 let alarmStatus = 'off';
@@ -9,13 +12,16 @@ let windowStatus = 'closed';
 let lightStatus = 'off';
 let temeratureStatus = 'celsius';
 
+async function getSnapshot() {
+  await captureWebsite.file('http://google.fr/', './assets/home.png')
+}
 bot.login(process.env.BOT_TOKEN);
 
 bot.on('ready', () => {
   console.info(`Logged in as ${bot.user.tag}!`);
 });
 
-bot.on('message', msg => {
+bot.on('message', async(msg) => {
   const args = msg.content.slice(1).trim().split(' ');
   const command = args.shift().toLowerCase();
 
@@ -105,6 +111,7 @@ bot.on('message', msg => {
   }
 
   else if (command === 'snapshot') {
+    await getSnapshot()
     const snapshotEmbed = new MessageEmbed()
       .setColor('#03fcb6')
       .attachFiles(['./assets/home.png'])
@@ -112,10 +119,31 @@ bot.on('message', msg => {
       .setTimestamp()
       .setFooter('home-security-bot');
     msg.channel.send(snapshotEmbed);
+    fs.unlink('./assets/home.png', (err) => {
+      if (err) {
+        console.log(err)
+      }
+    })
   }
 
   else if (command === 'lightplanning') {
-    msg.channel.send(':bulb: Home Lights :' + lightStatus);
+    if (args[0] == "on") {
+      const pythonScript = spawn('python', ['./sendData.py', "led", "on"])
+      pythonScript.stdout.on('data', (data) => {
+        console.log(data.toString())
+      })
+      lightStatus = "on"
+      msg.channel.send(':bulb: Home Lights turned ' + lightStatus);
+    } else if (args[0] == "off") {
+      const pythonScript = spawn('python', ['./sendData.py', "led", "off"])
+      pythonScript.stdout.on('data', (data) => {
+        console.log(data.toString())
+      })
+      lightStatus = "off"
+      msg.channel.send(':bulb: Home Lights turned ' + lightStatus);
+    } else {
+      msg.channel.send(':bulb: Home Lights : ' + lightStatus);
+    }
   }
 
   else if (command === 'alarm') {
