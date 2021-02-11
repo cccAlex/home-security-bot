@@ -12,16 +12,21 @@ let windowStatus = 'closed';
 let lightStatus = 'off';
 let temeratureStatus = 'celsius';
 
-async function getSnapshot() {
-  await captureWebsite.file('http://google.fr/', './assets/home.png')
+function deleteScreenshot() {
+  fs.unlink('./assets/home.png', (err) => {
+    if (err) {
+      console.log(err)
+    }
+  })
 }
+
 bot.login(process.env.BOT_TOKEN);
 
 bot.on('ready', () => {
   console.info(`Logged in as ${bot.user.tag}!`);
 });
 
-bot.on('message', async(msg) => {
+bot.on('message', async (msg) => {
   const args = msg.content.slice(1).trim().split(' ');
   const command = args.shift().toLowerCase();
 
@@ -111,7 +116,7 @@ bot.on('message', async(msg) => {
   }
 
   else if (command === 'snapshot') {
-    await getSnapshot()
+    await captureWebsite.file('https://google.com', './assets/home.png');
     const snapshotEmbed = new MessageEmbed()
       .setColor('#03fcb6')
       .attachFiles(['./assets/home.png'])
@@ -119,11 +124,7 @@ bot.on('message', async(msg) => {
       .setTimestamp()
       .setFooter('home-security-bot');
     msg.channel.send(snapshotEmbed);
-    fs.unlink('./assets/home.png', (err) => {
-      if (err) {
-        console.log(err)
-      }
-    })
+    setTimeout(deleteScreenshot, 5000)
   }
 
   else if (command === 'lightplanning') {
