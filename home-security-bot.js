@@ -11,6 +11,9 @@ let doorStatus = 'closed';
 let lightStatus = 'off';
 let temeratureStatus = 'celsius';
 
+function takeSnapshot() {
+  const pythonScript = spawn('python', ['./camera.py'])
+}
 bot.login(process.env.BOT_TOKEN);
 
 bot.on('ready', () => {
@@ -105,6 +108,7 @@ bot.on('message', async (msg) => {
   }
 
   else if (command === 'snapshot') {
+    setTimeout(takeSnapshot, 5000)
     const snapshotEmbed = new MessageEmbed()
       .setColor('#03fcb6')
       .attachFiles(['./assets/home.png'])
