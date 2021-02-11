@@ -1,24 +1,15 @@
 require('dotenv').config();
 const { Client, MessageEmbed } = require('discord.js');
 const readLastLines = require('read-last-lines');
-const captureWebsite = require('capture-website');
 const fs = require('fs');
 const spawn = require("child_process").spawn;
+const { request } = require('http');
 const bot = new Client();
 
 let alarmStatus = 'off';
 let doorStatus = 'closed';
-let windowStatus = 'closed';
 let lightStatus = 'off';
 let temeratureStatus = 'celsius';
-
-function deleteScreenshot() {
-  fs.unlink('./assets/home.png', (err) => {
-    if (err) {
-      console.log(err)
-    }
-  })
-}
 
 bot.login(process.env.BOT_TOKEN);
 
@@ -38,13 +29,13 @@ bot.on('message', async (msg) => {
       .setDescription('Home Security Bot is a surveillance bot that allows you to keep an eye on your home when you are away from home. \n\nHere is the list of the available commands:\n')
       .addFields(
         { name: ':question: $help', value: 'lists all of the available commands' },
-        { name: ':page_facing_up: $status [doors/windows/lights]', value: 'shows the status of all the doors, windows and lights of your home' },
+        { name: ':page_facing_up: $status [doors/lights]', value: 'shows the status of all the doors and lights of your home' },
         { name: ':thermometer: $temperature [c/f]', value: 'gives the current temperature of your home (you can choose between displaying in celsius or fahrenheit' },
         { name: ':droplet: $humidity', value: 'gives the current humidity level of your home' },
         { name: ':camera: $snapshot', value: 'sends you a current image of your home' },
         { name: ':bulb: $lightplanning [hh:mm,hh:mm]', value: 'allows you to control the lights and schedule them when to turn on and off' },
         { name: ':lock: $alarm [on/off]', value: 'turning the alarm on will keep you notified of any intrusion into your home' },
-        { name: ':notebook_with_decorative_cover: $logs [doors/windows/lights]', value: 'display the logs from all the sensors' },
+        { name: ':notebook_with_decorative_cover: $logs [doors/lights/snapshots]', value: 'display the logs from all the sensors' },
       )
       .setTimestamp()
       .setFooter('home-security-bot', 'attachment://avatar.png');
@@ -66,8 +57,6 @@ bot.on('message', async (msg) => {
     }
     else if (args[0] == 'doors')
       statusEmbed.addField(':door: Doors : ' + doorStatus, '\u200B');
-    else if (args[0] == 'window')
-      statusEmbed.addField(':window: Windows : ' + windowStatus, '\u200B');
     else if (args[0] == 'lights')
       statusEmbed.addField(':bulb: Lights : ' + lightStatus, '\u200B');
     else
@@ -116,7 +105,6 @@ bot.on('message', async (msg) => {
   }
 
   else if (command === 'snapshot') {
-    await captureWebsite.file('https://google.com', './assets/home.png');
     const snapshotEmbed = new MessageEmbed()
       .setColor('#03fcb6')
       .attachFiles(['./assets/home.png'])
@@ -124,7 +112,9 @@ bot.on('message', async (msg) => {
       .setTimestamp()
       .setFooter('home-security-bot');
     msg.channel.send(snapshotEmbed);
-    setTimeout(deleteScreenshot, 5000)
+    const currentDate = new Date()
+    console.log(currentDate)
+    fs.appendFileSync('./snapshots.txt', currentDate + ' command requested by ' + msg.member.user.tag + '\n')
   }
 
   else if (command === 'lightplanning') {
@@ -163,12 +153,25 @@ bot.on('message', async (msg) => {
   }
 
   else if (command === 'logs') {
-    readLastLines.read('logs.txt', 20).then((lines) => {
-      lines = lines.replace('/&/g', ' ');
-      lines = lines.replace('/=/g', ':');
-      msg.channel.send(lines);
-    }).catch((e) => {
-      msg.channel.send(':droplet: Error : arduino not started!');
-    })
+    if (args[0] == "snapshots") {
+      readLastLines.read('snapshots.txt', 20).then((lines) => {
+        const snapShotLogs = new MessageEmbed()
+        .setColor('#03fcb6')
+        .setDescription(lines)
+        .setTimestamp()
+        .setFooter('home-security-bot', 'attachment://avatar.png');
+        msg.channel.send(snapShotLogs)
+      }).catch((e) => {
+        msg.channel.send(':droplet: Error : arduino not started!');
+      })
+    } else {
+      readLastLines.read('logs.txt', 20).then((lines) => {
+        lines = lines.replace('/&/g', ' ');
+        lines = lines.replace('/=/g', ':');
+        msg.channel.send(lines);
+      }).catch((e) => {
+        msg.channel.send(':droplet: Error : arduino not started!');
+      })
+    }
   }
 });
