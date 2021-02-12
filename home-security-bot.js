@@ -179,7 +179,12 @@ bot.on('message', async (msg) => {
       readLastLines.read('logs.txt', 20).then((lines) => {
         lines = lines.replace('/&/g', ' ');
         lines = lines.replace('/=/g', ':');
-        msg.channel.send(lines);
+        const logs = new MessageEmbed()
+          .setColor('#03fcb6')
+          .setDescription(lines)
+          .setTimestamp()
+          .setFooter('home-security-bot', 'attachment://avatar.png');
+        msg.channel.send(logs);
       }).catch((e) => {
         msg.channel.send(':droplet: Error : arduino not started!');
       })

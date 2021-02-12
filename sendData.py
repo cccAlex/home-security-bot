@@ -3,9 +3,11 @@
 import sys
 import serial
 import time
+from datetime import date
 
 def checkCommands(argv):
     arduino = serial.Serial('COM3', 9600)
+    counter = 0
 
     if (len(argv) != 2):
         raise Exception("not enough arguments")
@@ -13,22 +15,20 @@ def checkCommands(argv):
         while True:
             if (argv[0] == "led"):
                 if (argv[1] == "on"):
-                    print('Led turned on!')
-                    sys.stdout.flush()
-                    arduino.write('1'.encode())
+                    arduino.write('o'.encode())
                 if (argv[1] == "off"):
-                    arduino.write('0'.encode())
-                    print('Led turned off!')
-                    sys.stdout.flush()
+                    arduino.write('f'.encode())
             if (argv[0] == "temperature"):
                 logs = open('logs.txt', 'a')
-                logs.write(arduino.readline())
+                logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
                 logs.close()
             if (argv[0] == "humidity"):
                 logs = open('logs.txt', 'a')
-                logs.write(arduino.readline())
+                logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
                 logs.close()
-            time.sleep(10)
+            if (counter > 5000):
+                break
+            counter += 1
 
 def main(argv):
     try:
