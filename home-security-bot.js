@@ -69,6 +69,10 @@ bot.on('message', async (msg) => {
 
   else if (command === 'temperature') {
     if (!args.length) {
+      const pythonScript = spawn('python', ['./sendData.py', "temperature", "data"])
+      pythonScript.stdout.on('data', (data) => {
+        console.log(data.toString())
+      })
       readLastLines.read('logs.txt', 1).then((line) => {
         let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
         while (match = regex.exec(line))
@@ -94,6 +98,10 @@ bot.on('message', async (msg) => {
   }
 
   else if (command === 'humidity') {
+    const pythonScript = spawn('python', ['./sendData.py', "humidity", "data"])
+      pythonScript.stdout.on('data', (data) => {
+        console.log(data.toString())
+      })
     readLastLines.read('logs.txt', 1).then((line) => {
       let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
       while (match = regex.exec(line))
@@ -117,7 +125,6 @@ bot.on('message', async (msg) => {
       .setFooter('home-security-bot');
     msg.channel.send(snapshotEmbed);
     const currentDate = new Date()
-    console.log(currentDate)
     fs.appendFileSync('./snapshots.txt', currentDate + ' command requested by ' + msg.member.user.tag + '\n')
   }
 
