@@ -7,28 +7,27 @@ from datetime import date
 
 def checkCommands(argv):
     arduino = serial.Serial('COM3', 9600)
-    counter = 0
 
     if (len(argv) != 2):
         raise Exception("not enough arguments")
     else:
-        while True:
-            if (argv[0] == "led"):
-                if (argv[1] == "on"):
-                    arduino.write('o'.encode())
-                if (argv[1] == "off"):
-                    arduino.write('f'.encode())
-            if (argv[0] == "temperature"):
-                logs = open('logs.txt', 'a')
-                logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
-                logs.close()
-            if (argv[0] == "humidity"):
-                logs = open('logs.txt', 'a')
-                logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
-                logs.close()
-            if (counter > 5000):
-                break
-            counter += 1
+        time.sleep(2)
+        if (argv[0] == "led"):
+            if (argv[1] == "on"):
+                arduino.write('o'.encode())
+                time.sleep(5)
+            if (argv[1] == "off"):
+                arduino.write('f'.encode())
+                time.sleep(5)
+        if (argv[0] == "temperature"):
+            logs = open('logs.txt', 'a')
+            logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
+            logs.close()
+        if (argv[0] == "humidity"):
+            logs = open('logs.txt', 'a')
+            logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
+            logs.close()
+        arduino.close()
 
 def main(argv):
     try:
