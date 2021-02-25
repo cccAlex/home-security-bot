@@ -27,6 +27,10 @@ def checkCommands(argv):
             logs = open('logs.txt', 'a')
             logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
             logs.close()
+        if (argv[0] == "sensor"):
+            logs = open('logs.txt', 'a')
+            logs.write(str(date.today()) + arduino.readline().decode('utf-8'))
+            logs.close()
         arduino.close()
 
 def main(argv):

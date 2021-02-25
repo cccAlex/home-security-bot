@@ -4,9 +4,9 @@ const readLastLines = require('read-last-lines');
 const fs = require('fs');
 const spawn = require("child_process").spawn;
 const { request } = require('http');
+const { doesNotThrow } = require('assert');
 const bot = new Client();
 
-let alarmStatus = 'off';
 let doorStatus = 'closed';
 let lightStatus = 'off';
 let temeratureStatus = 'celsius';
@@ -37,7 +37,7 @@ bot.on('message', async (msg) => {
         { name: ':droplet: $humidity', value: 'gives the current humidity level of your home' },
         { name: ':camera: $snapshot', value: 'sends you a current image of your home' },
         { name: ':bulb: $lightplanning [hh:mm,hh:mm]', value: 'allows you to control the lights and schedule them when to turn on and off' },
-        { name: ':lock: $alarm [on/off]', value: 'turning the alarm on will keep you notified of any intrusion into your home' },
+        { name: ':lock: $alarm', value: 'shows the status of the proximity captor (similar to $status doors)' },
         { name: ':notebook_with_decorative_cover: $logs [doors/lights/snapshots]', value: 'display the logs from all the sensors' },
       )
       .setTimestamp()
@@ -149,18 +149,28 @@ bot.on('message', async (msg) => {
   }
 
   else if (command === 'alarm') {
-    if (!args.length)
-      return msg.channel.send(':unlock: Alarm is currently ' + alarmStatus);
-    if (args.length > 1)
-      return msg.channel.send('Too many arguments!');
-    if (args[0] === 'on') {
-      alarmStatus = 'on';
-      return msg.channel.send(':lock: Alarm is now ' + alarmStatus);
-    }
-    if (args[0] === 'off') {
-      alarmStatus = 'off';
-      return msg.channel.send(':lock: Alarm is now ' + alarmStatus);
-    }
+    const pythonScript = spawn('python', ['./sendData.py', "sensor", "on"])
+      pythonScript.stdout.on('data', (data) => {
+        console.log(data.toString())
+    })
+    readLastLines.read('logs.txt', 1).then((line) => {
+      let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
+      while (match = regex.exec(line))
+        params[match[1]] = match[2];
+
+      if (params.sensor) {
+        if (parseInt(params.sensor, 10) < 5) {
+          doorStatus = 'closed'
+        } else {
+          doorStatus = 'opened'
+        }
+        msg.channel.send(':lock: Doors are currently ' + doorStatus + ', displayed value on the sensor :' + params.sensor + 'cm' );
+      } else {
+        msg.channel.send(':lock: Error : arduino not started!');
+      }
+    }).catch((e) => {
+      msg.channel.send(':lock: Error : arduino not started!');
+    })
   }
 
   else if (command === 'logs') {
@@ -177,8 +187,8 @@ bot.on('message', async (msg) => {
       })
     } else {
       readLastLines.read('logs.txt', 20).then((lines) => {
-        lines = lines.replace('/&/g', ' ');
-        lines = lines.replace('/=/g', ':');
+        lines.replace('/&/g', ' ');
+        lines.replace('/=/g', ':');
         const logs = new MessageEmbed()
           .setColor('#03fcb6')
           .setDescription(lines)
