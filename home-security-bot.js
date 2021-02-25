@@ -73,6 +73,7 @@ bot.on('message', async (msg) => {
       pythonScript.stdout.on('data', (data) => {
         console.log(data.toString())
       })
+      await new Promise(resolve => setTimeout(resolve, 5000));
       readLastLines.read('logs.txt', 1).then((line) => {
         let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
         while (match = regex.exec(line))
@@ -102,6 +103,7 @@ bot.on('message', async (msg) => {
       pythonScript.stdout.on('data', (data) => {
         console.log(data.toString())
       })
+    await new Promise(resolve => setTimeout(resolve, 5000));
     readLastLines.read('logs.txt', 1).then((line) => {
       let regex= /[#?&]([^=#]+)=([^&#]*)/g, params = {}, match;
       while (match = regex.exec(line))
