@@ -118,7 +118,8 @@ bot.on('message', async (msg) => {
   }
 
   else if (command === 'snapshot') {
-    setTimeout(takeSnapshot, 5000)
+    takeSnapshot();
+    await new Promise(resolve => setTimeout(resolve, 5000));
     const snapshotEmbed = new MessageEmbed()
       .setColor('#03fcb6')
       .attachFiles(['./assets/home.png'])
@@ -162,7 +163,7 @@ bot.on('message', async (msg) => {
         params[match[1]] = match[2];
 
       if (params.sensor) {
-        if (parseInt(params.sensor, 10) == 99) {
+        if (parseInt(params.sensor, 10) >= 98 && parseInt(params.sensor, 10) <= 100) {
           doorStatus = 'closed'
         } else {
           doorStatus = 'opened'
@@ -190,8 +191,8 @@ bot.on('message', async (msg) => {
       })
     } else {
       readLastLines.read('logs.txt', 20).then((lines) => {
-        lines.replace('/&/g', ' ');
-        lines.replace('/=/g', ':');
+        lines = lines.replace(/&/g, ' ');
+        lines = lines.replace(/=/g, ':');
         const logs = new MessageEmbed()
           .setColor('#03fcb6')
           .setDescription(lines)
