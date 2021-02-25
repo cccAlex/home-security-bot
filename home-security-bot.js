@@ -159,7 +159,7 @@ bot.on('message', async (msg) => {
         params[match[1]] = match[2];
 
       if (params.sensor) {
-        if (parseInt(params.sensor, 10) < 5) {
+        if (parseInt(params.sensor, 10) == 99) {
           doorStatus = 'closed'
         } else {
           doorStatus = 'opened'
